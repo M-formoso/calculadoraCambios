@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cambiocba_db
+    environment:
+      POSTGRES_USER: cambiocba
+      POSTGRES_PASSWORD: cambiocba123
+      POSTGRES_DB: cambiocba
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cambiocba -d cambiocba"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cambiocba_backend
+    environment:
+      - DATABASE_URL=postgresql://cambiocba:cambiocba123@db:5432/cambiocba
+      - SECRET_KEY=your-super-secret-key-change-in-production
+      - ADMIN_EMAIL=admin@cambiocba.com
+      - ADMIN_PASSWORD=admin123
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cambiocba_frontend
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/v1
+      - VITE_WHATSAPP_NUMBER=5493511234567
+      - VITE_TELEGRAM_USER=cambiocba
+      - VITE_POLLING_INTERVAL=60000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  postgres_data:
