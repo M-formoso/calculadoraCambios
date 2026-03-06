@@ -1,19 +1,19 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import { useCalculadoraStore } from '@/stores/calculadoraStore';
 import { Cotizacion, Divisa, Operacion } from '@/types/cotizacion';
 import { formatearPrecio, formatearPrecioSinSimbolo, getDivisaLabel } from '@/utils/format';
-import { MessageCircle, Send, Calculator, ArrowRightLeft, RefreshCw } from 'lucide-react';
+import { MessageCircle, Send, Calculator, ArrowRightLeft, RefreshCw, Phone } from 'lucide-react';
 
 interface CalculadoraProps {
   cotizaciones: Cotizacion[];
 }
 
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '5493511234567';
-const TELEGRAM_USER = import.meta.env.VITE_TELEGRAM_USER || 'cambiocba';
-
 export default function Calculadora({ cotizaciones }: CalculadoraProps) {
   const calculadoraRef = useRef<HTMLDivElement>(null);
   const { divisa, operacion, monto, modoEntrada, setDivisa, setOperacion, setMonto, toggleModoEntrada } = useCalculadoraStore();
+
+  // Estado para el número de teléfono
+  const [telefono, setTelefono] = useState('');
 
   const cotizacionActual = useMemo(() => {
     return cotizaciones.find((c) => c.divisa === divisa);
@@ -48,20 +48,48 @@ export default function Calculadora({ cotizaciones }: CalculadoraProps) {
     { id: 'usdt', emoji: '🌐', label: 'USDT' },
   ];
 
-  const handleWhatsApp = () => {
+  // Formatear número de teléfono (quitar espacios, guiones, etc)
+  const formatearTelefono = (tel: string) => {
+    // Quitar todo excepto números y el signo +
+    let limpio = tel.replace(/[^\d+]/g, '');
+    // Si empieza con 0, asumimos Argentina y agregamos código de país
+    if (limpio.startsWith('0')) {
+      limpio = '54' + limpio.substring(1);
+    }
+    // Si no tiene código de país, agregar 54 (Argentina)
+    if (!limpio.startsWith('+') && !limpio.startsWith('54')) {
+      limpio = '54' + limpio;
+    }
+    // Quitar el + si existe
+    return limpio.replace('+', '');
+  };
+
+  const getMensaje = () => {
     const operacionText = operacion === 'vender' ? 'vender' : 'comprar';
     const divisaLabel = getDivisaLabel(divisa);
-    const mensaje = `Hola! Quiero ${operacionText} ${montoDivisa.toFixed(2)} ${divisaLabel} a $${formatearPrecioSinSimbolo(cotizacionUsada)}. Total estimado: ${formatearPrecio(montoPesos)}. Gracias!`;
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+    return `Hola! Quiero ${operacionText} ${montoDivisa.toFixed(2)} ${divisaLabel} a $${formatearPrecioSinSimbolo(cotizacionUsada)}. Total estimado: ${formatearPrecio(montoPesos)}. Gracias!`;
+  };
+
+  const handleWhatsApp = () => {
+    const numeroFormateado = formatearTelefono(telefono);
+    const mensaje = getMensaje();
+    const url = `https://wa.me/${numeroFormateado}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank');
   };
 
   const handleTelegram = () => {
-    const operacionText = operacion === 'vender' ? 'vender' : 'comprar';
-    const divisaLabel = getDivisaLabel(divisa);
-    const mensaje = `Hola! Quiero ${operacionText} ${montoDivisa.toFixed(2)} ${divisaLabel} a $${formatearPrecioSinSimbolo(cotizacionUsada)}. Total estimado: ${formatearPrecio(montoPesos)}. Gracias!`;
-    const url = `https://t.me/${TELEGRAM_USER}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
+    // Para Telegram usamos el número o username
+    const mensaje = getMensaje();
+    // Si parece un número, usamos el formato de teléfono
+    if (/^\d/.test(telefono.replace(/[^\d]/g, ''))) {
+      const numeroFormateado = formatearTelefono(telefono);
+      const url = `https://t.me/+${numeroFormateado}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, '_blank');
+    } else {
+      // Si no, asumimos que es un username
+      const url = `https://t.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, '_blank');
+    }
   };
 
   useEffect(() => {
@@ -93,6 +121,8 @@ export default function Calculadora({ cotizaciones }: CalculadoraProps) {
       return `${resultado.toFixed(2)} ${getDivisaLabel(divisa)}`;
     }
   };
+
+  const puedeEnviar = monto && parseFloat(monto) > 0 && telefono.trim().length > 0;
 
   return (
     <div ref={calculadoraRef} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -237,11 +267,34 @@ export default function Calculadora({ cotizaciones }: CalculadoraProps) {
           </div>
         </div>
 
+        {/* Input de teléfono */}
+        <div>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+            Numero de telefono / Usuario Telegram
+          </label>
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <Phone className="h-5 w-5" />
+            </div>
+            <input
+              type="tel"
+              inputMode="tel"
+              placeholder="Ej: 3511234567 o @usuario"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder:text-gray-400"
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">
+            Ingresa el numero con codigo de area (sin 0 ni 15)
+          </p>
+        </div>
+
         {/* Botones de contacto */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <button
             onClick={handleWhatsApp}
-            disabled={!monto || parseFloat(monto) <= 0}
+            disabled={!puedeEnviar}
             className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-green-200"
           >
             <MessageCircle className="h-5 w-5" />
@@ -249,7 +302,7 @@ export default function Calculadora({ cotizaciones }: CalculadoraProps) {
           </button>
           <button
             onClick={handleTelegram}
-            disabled={!monto || parseFloat(monto) <= 0}
+            disabled={!puedeEnviar}
             className="flex items-center justify-center gap-2 bg-[#0088CC] hover:bg-[#0077B5] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-blue-200"
           >
             <Send className="h-5 w-5" />
