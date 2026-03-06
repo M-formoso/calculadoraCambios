@@ -8,6 +8,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        border: "#D4D4D4",
+        input: "#D4D4D4",
+        ring: "#007BFF",
+        background: "#F0F0F0",
+        foreground: "#1A1A1A",
         primary: {
           DEFAULT: "#007BFF",
           foreground: "#FFFFFF",
@@ -16,7 +21,10 @@ export default {
           DEFAULT: "#28A745",
           foreground: "#FFFFFF",
         },
-        background: "#F0F0F0",
+        muted: {
+          DEFAULT: "#E5E5E5",
+          foreground: "#737373",
+        },
         card: {
           DEFAULT: "#FFFFFF",
           foreground: "#1A1A1A",
