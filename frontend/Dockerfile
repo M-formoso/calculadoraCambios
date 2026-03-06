@@ -2,17 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy source code
+# Copy all files first
 COPY . .
 
-# Expose port
-EXPOSE 5173
+# Install dependencies (this triggers postinstall -> build)
+RUN npm install
 
-# Run development server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Expose port
+EXPOSE 8080
+
+# Run production server
+CMD ["node", "server.js"]
