@@ -35,9 +35,17 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.on_event("startup")
 def startup_event():
-    db = SessionLocal()
+    print("Starting application...")
+    print(f"Environment: {settings.ENVIRONMENT}")
+    print(f"Database URL: {settings.DATABASE_URL[:50]}...")
     try:
+        db = SessionLocal()
+        print("Database connection established")
         init_db(db)
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Error during startup: {e}")
+        raise e
     finally:
         db.close()
 
