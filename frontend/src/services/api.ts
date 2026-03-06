@@ -1,10 +1,14 @@
 import axios from 'axios';
 
-// En produccion usar la URL del backend de Railway
-const API_URL = import.meta.env.VITE_API_URL ||
-  (window.location.hostname === 'localhost'
-    ? 'http://localhost:8000/api/v1'
-    : 'https://backend-production-f77d.up.railway.app/api/v1');
+// Detectar si estamos en produccion (Railway) o desarrollo local
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+// URL del backend
+const API_URL = isProduction
+  ? 'https://backend-production-f77d.up.railway.app/api/v1'
+  : 'http://localhost:8000/api/v1';
+
+console.log('API URL:', API_URL, 'isProduction:', isProduction);
 
 const api = axios.create({
   baseURL: API_URL,
