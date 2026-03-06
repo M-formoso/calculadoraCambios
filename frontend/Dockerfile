@@ -2,11 +2,17 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy all files first
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --ignore-scripts
+
+# Copy all source files
 COPY . .
 
-# Install dependencies (this triggers postinstall -> build)
-RUN npm install
+# Build the app
+RUN npm run build
 
 # Expose port
 EXPOSE 8080
