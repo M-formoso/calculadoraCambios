@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/components/ui/use-toast';
+import { TrendingUp, Mail, Lock, ArrowRight, Shield } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -34,42 +31,115 @@ export default function LoginPage() {
     }
   };
 
+  const handleVolver = () => {
+    navigate('/');
+  };
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Panel de Administracion</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@cambiocba.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center px-4">
+      {/* Background pattern */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.05\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+
+      <div className="relative w-full max-w-md">
+        {/* Logo y titulo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center bg-white/20 backdrop-blur-sm p-4 rounded-2xl mb-4">
+            <TrendingUp className="h-10 w-10 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Linea de Cambio</h1>
+          <p className="text-blue-100">Panel de Administracion</p>
+        </div>
+
+        {/* Card de login */}
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+          {/* Header del card */}
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 p-2.5 rounded-xl">
+                <Shield className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-800">Acceso Seguro</h2>
+                <p className="text-xs text-gray-500">Ingresa tus credenciales</p>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Contrasena</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+          </div>
+
+          {/* Formulario */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+                Email
+              </label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="admin@cambiocba.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder:text-gray-400"
+                />
+              </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Ingresando...' : 'Ingresar'}
-            </Button>
+
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+                Contrasena
+              </label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder:text-gray-400"
+                />
+              </div>
+            </div>
+
+            {/* Boton de login */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-blue-200"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  Ingresando...
+                </>
+              ) : (
+                <>
+                  Ingresar al Panel
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Link para volver */}
+        <div className="text-center mt-6">
+          <button
+            onClick={handleVolver}
+            className="text-blue-100 hover:text-white transition-colors text-sm font-medium"
+          >
+            ← Volver a cotizaciones
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

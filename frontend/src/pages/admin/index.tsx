@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useCotizaciones } from '@/hooks/useCotizaciones';
 import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/components/ui/use-toast';
 import { cotizacionService } from '@/services/cotizacionService';
 import { CotizacionUpdate } from '@/types/cotizacion';
 import { formatearFechaHora } from '@/utils/format';
-import { LogOut, Save } from 'lucide-react';
+import { LogOut, Save, TrendingUp, Clock, User, ArrowDownCircle, ArrowUpCircle, Home } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface PreciosEdit {
@@ -122,6 +118,10 @@ export default function AdminPage() {
     navigate('/');
   };
 
+  const handleHome = () => {
+    navigate('/');
+  };
+
   const handlePrecioChange = (
     divisa: keyof PreciosEdit,
     tipo: 'compra' | 'venta',
@@ -134,7 +134,6 @@ export default function AdminPage() {
         [tipo]: valor,
       },
     }));
-    // Limpiar error al editar
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[`${divisa}_${tipo}`];
@@ -150,103 +149,180 @@ export default function AdminPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Cargando panel...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       {/* Header Admin */}
-      <header className="bg-primary text-white py-4 px-4 shadow-md">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold">Panel Admin</h1>
-            <p className="text-sm text-white/80">{user?.nombre}</p>
+      <header className="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
+        <div className="max-w-4xl mx-auto px-4 py-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-xl">
+                <TrendingUp className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight">Panel de Administracion</h1>
+                <div className="flex items-center gap-2 text-blue-100 text-sm">
+                  <User className="h-3.5 w-3.5" />
+                  <span>{user?.nombre || 'Administrador'}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleHome}
+                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
+                title="Ir al inicio"
+              >
+                <Home className="h-5 w-5" />
+              </button>
+              <button
+                onClick={handleLogout}
+                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
+                title="Cerrar sesion"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white hover:bg-white/20"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Info de actualizacion */}
         {cotizaciones?.[0]?.actualizadoAt && (
-          <p className="text-sm text-gray-500 text-center">
-            Ultima actualizacion: {formatearFechaHora(cotizaciones[0].actualizadoAt)}
-          </p>
+          <div className="flex items-center justify-center gap-2 text-gray-500 mb-6">
+            <Clock className="h-4 w-4" />
+            <span className="text-sm">
+              Ultima actualizacion: {formatearFechaHora(cotizaciones[0].actualizadoAt)}
+            </span>
+          </div>
         )}
 
-        {/* Tarjetas de edicion */}
-        {divisasInfo.map((divisa) => (
-          <Card key={divisa.id}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <span>{divisa.emoji}</span>
-                {divisa.nombre}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`${divisa.id}_compra`}>
+        {/* Grid de tarjetas - responsive */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {divisasInfo.map((divisa) => (
+            <div
+              key={divisa.id}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+            >
+              {/* Header de la tarjeta */}
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{divisa.emoji}</span>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800">{divisa.nombre}</h3>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Editar precios</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Campos de edicion */}
+              <div className="p-5 space-y-4">
+                {/* Precio Compra */}
+                <div>
+                  <label
+                    htmlFor={`${divisa.id}_compra`}
+                    className="flex items-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                  >
+                    <ArrowDownCircle className="h-3.5 w-3.5 text-blue-500" />
                     Precio Compra
-                    <span className="text-xs text-gray-400 block">(Vos vendes)</span>
-                  </Label>
-                  <Input
-                    id={`${divisa.id}_compra`}
-                    type="number"
-                    inputMode="decimal"
-                    step="0.01"
-                    value={precios[divisa.id].compra}
-                    onChange={(e) => handlePrecioChange(divisa.id, 'compra', e.target.value)}
-                    className={errors[`${divisa.id}_compra`] ? 'border-red-500' : ''}
-                  />
+                    <span className="text-gray-400 normal-case">(Vos vendes)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
+                    <input
+                      id={`${divisa.id}_compra`}
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      value={precios[divisa.id].compra}
+                      onChange={(e) => handlePrecioChange(divisa.id, 'compra', e.target.value)}
+                      className={`w-full pl-8 pr-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 outline-none transition-all text-lg font-semibold ${
+                        errors[`${divisa.id}_compra`]
+                          ? 'border-red-300 focus:border-red-500'
+                          : 'border-gray-200 focus:border-blue-500'
+                      }`}
+                    />
+                  </div>
                   {errors[`${divisa.id}_compra`] && (
-                    <p className="text-xs text-red-500">{errors[`${divisa.id}_compra`]}</p>
+                    <p className="text-xs text-red-500 mt-1">{errors[`${divisa.id}_compra`]}</p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`${divisa.id}_venta`}>
+
+                {/* Precio Venta */}
+                <div>
+                  <label
+                    htmlFor={`${divisa.id}_venta`}
+                    className="flex items-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                  >
+                    <ArrowUpCircle className="h-3.5 w-3.5 text-green-500" />
                     Precio Venta
-                    <span className="text-xs text-gray-400 block">(Vos compras)</span>
-                  </Label>
-                  <Input
-                    id={`${divisa.id}_venta`}
-                    type="number"
-                    inputMode="decimal"
-                    step="0.01"
-                    value={precios[divisa.id].venta}
-                    onChange={(e) => handlePrecioChange(divisa.id, 'venta', e.target.value)}
-                    className={errors[`${divisa.id}_venta`] ? 'border-red-500' : ''}
-                  />
+                    <span className="text-gray-400 normal-case">(Vos compras)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
+                    <input
+                      id={`${divisa.id}_venta`}
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      value={precios[divisa.id].venta}
+                      onChange={(e) => handlePrecioChange(divisa.id, 'venta', e.target.value)}
+                      className={`w-full pl-8 pr-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-green-100 outline-none transition-all text-lg font-semibold ${
+                        errors[`${divisa.id}_venta`]
+                          ? 'border-red-300 focus:border-red-500'
+                          : 'border-gray-200 focus:border-green-500'
+                      }`}
+                    />
+                  </div>
                   {errors[`${divisa.id}_venta`] && (
-                    <p className="text-xs text-red-500">{errors[`${divisa.id}_venta`]}</p>
+                    <p className="text-xs text-red-500 mt-1">{errors[`${divisa.id}_venta`]}</p>
                   )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          ))}
+        </div>
 
         {/* Boton guardar */}
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={handleGuardar}
-          disabled={mutation.isPending}
-        >
-          <Save className="mr-2 h-5 w-5" />
-          {mutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
-        </Button>
+        <div className="max-w-md mx-auto">
+          <button
+            onClick={handleGuardar}
+            disabled={mutation.isPending}
+            className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-green-200"
+          >
+            {mutation.isPending ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                Guardando...
+              </>
+            ) : (
+              <>
+                <Save className="h-5 w-5" />
+                Guardar Cambios
+              </>
+            )}
+          </button>
+        </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 mt-12 py-6 bg-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <p className="text-sm text-gray-500">
+            Linea de Cambio - Panel de Administracion
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
