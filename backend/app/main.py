@@ -6,6 +6,11 @@ from app.db.session import engine, SessionLocal
 from app.db.base import Base
 from app.db.init_db import init_db
 
+# Importar modelos para que SQLAlchemy los registre
+from app.models.usuario import Usuario
+from app.models.cotizacion import Cotizacion
+from app.models.historial_cotizacion import HistorialCotizacion
+
 # Crear tablas
 Base.metadata.create_all(bind=engine)
 
