@@ -48,7 +48,7 @@ export default function Calculadora({ cotizaciones }: CalculadoraProps) {
   const getMensaje = () => {
     const operacionText = operacion === 'vender' ? 'vender' : 'comprar';
     const divisaLabel = getDivisaLabel(divisa);
-    return `Hola! Quiero ${operacionText} ${montoDivisa.toFixed(2)} ${divisaLabel} a $${formatearPrecioSinSimbolo(cotizacionUsada)}. Total estimado: ${formatearPrecio(montoPesos)}. También tengo cheques disponibles para cambiar. Gracias!`;
+    return `Hola! Quiero ${operacionText} ${montoDivisa.toFixed(2)} ${divisaLabel} a $${formatearPrecioSinSimbolo(cotizacionUsada)}. Total estimado: ${formatearPrecio(montoPesos)}. Gracias!`;
   };
 
   const handleWhatsApp = () => {
