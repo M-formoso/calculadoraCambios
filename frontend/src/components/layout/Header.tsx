@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Settings, TrendingUp } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { formatearHora } from '@/utils/format';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -24,7 +24,7 @@ export default function Header({ ultimaActualizacion }: HeaderProps) {
       <div className="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-2 rounded-xl">
-            <TrendingUp className="h-6 w-6 md:h-7 md:w-7" />
+            <img src="/faviconLogo.png" alt="Logo" className="h-6 w-6 md:h-7 md:w-7" />
           </div>
           <div>
             <h1 className="text-xl md:text-2xl font-bold tracking-tight">Linea de Cambio</h1>
