@@ -23,8 +23,8 @@ export default function Header({ ultimaActualizacion }: HeaderProps) {
     <header className="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
       <div className="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-white/20 p-2.5 rounded-xl">
-            <img src="/faviconLogo.png" alt="Logo" className="h-12 w-12 md:h-14 md:w-14" />
+          <div className="bg-white/20 p-3 rounded-2xl">
+            <img src="/faviconLogo.png" alt="Logo" className="h-16 w-16 md:h-20 md:w-20" />
           </div>
           <div>
             <h1 className="text-xl md:text-2xl font-bold tracking-tight">Linea de Cambio</h1>
